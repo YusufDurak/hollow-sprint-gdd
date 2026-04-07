@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hollow Sprint GDD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --accent: #FF4D2E;
+    --accent2: #FFB800;
+    --bg: #FAFAFA;
+    --surface: #FFFFFF;
+    --border: #EAEAEA;
+    --text: #111111;
+    --muted: #666666;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body { font-family: var(--sans); color: var(--text); background: var(--bg); padding: 20px;}
+
+  .wiki-wrap { max-width: 900px; margin: 0 auto; padding: 0 0 40px; background: var(--bg); }
+
+  /* HEADER */
+  .wiki-header {
+    background: var(--accent);
+    color: #fff;
+    padding: 28px 32px 24px;
+    border-radius: 12px;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .wiki-header::before {
+    content: 'GDD';
+    font-family: var(--mono);
+    font-size: 120px;
+    font-weight: 700;
+    position: absolute;
+    right: -10px;
+    top: -20px;
+    color: rgba(255,255,255,0.08);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .wiki-header .game-title {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .wiki-header .game-tag {
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.75;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .version-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-top: 12px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #4AFF91; }
+
+  /* NAV */
+  .wiki-nav {
+    display: flex;
+    gap: 2px;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .nav-btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .nav-btn:hover { background: var(--surface); color: var(--text); }
+  .nav-btn.active { background: var(--accent); color: #fff; }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* SECTION HEADER */
+  .sec-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .sec-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    padding: 3px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .sec-title { font-family: var(--mono); font-size: 17px; font-weight: 700; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .card-body { font-size: 14px; line-height: 1.7; color: var(--text); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* PITCH */
+  .elevator-pitch {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+  }
+  .elevator-pitch .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.7; margin-bottom: 8px; }
+  .elevator-pitch .hook { font-family: var(--mono); font-size: 16px; font-weight: 700; line-height: 1.5; }
+
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--muted);
+  }
+  .tag.red { background: #fff1ee; color: var(--accent); border-color: #ffccc4; }
+  .tag.yellow { background: #fffbea; color: #92680a; border-color: #fde68a; }
+  .tag.green { background: #edfff4; color: #1a7a40; border-color: #a3e6c0; }
+
+  /* COMPETITOR TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: left;
+    padding: 6px 10px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .comp-table td {
+    padding: 10px 10px;
+    border-bottom: 0.5px solid var(--border);
+    line-height: 1.5;
+    vertical-align: top;
+  }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-name { font-weight: 500; }
+  .diff-badge {
+    display: inline-block;
+    font-size: 10px;
+    background: #edfff4;
+    color: #1a7a40;
+    border: 0.5px solid #a3e6c0;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-top: 4px;
+  }
+
+  /* LOOP DIAGRAM */
+  .loop-wrap { padding: 8px 0; }
+  .loop-row { display: flex; align-items: center; gap: 0; justify-content: center; }
+  .loop-box {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    min-width: 100px;
+    position: relative;
+  }
+  .loop-box.accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .loop-box.yellow { background: var(--accent2); color: #4a3000; border-color: var(--accent2); }
+  .loop-arrow { font-size: 18px; color: var(--muted); padding: 0 8px; flex-shrink: 0; }
+  .loop-sub { font-size: 10px; opacity: 0.7; margin-top: 2px; }
+  .loop-cycle { text-align: center; margin-top: 12px; font-size: 11px; color: var(--muted); }
+  .doc-link { display: inline-block; margin-top: 10px; font-size: 12px; color: #1a4a8a; text-decoration: none; font-weight: 500; background: #edf4ff; padding: 4px 10px; border-radius: 6px; border: 0.5px solid #c2dcf6; }
+
+  /* MECHANICS */
+  .mechanic-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .mechanic-row:last-child { border-bottom: none; }
+  .mech-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .mech-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .mech-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .edge-case {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #92680a;
+    background: #fffbea;
+    border: 0.5px solid #fde68a;
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  /* PROGRESSION */
+  .prog-tree { padding: 8px 0; }
+  .prog-level {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .prog-level:last-child { border-bottom: none; }
+  .level-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .level-num.boss { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .level-bar-wrap { flex: 1; }
+  .level-name { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+  .level-bar-bg { height: 4px; background: var(--bg); border-radius: 2px; }
+  .level-bar { height: 4px; background: var(--accent); border-radius: 2px; }
+  .level-xp { font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; }
+
+  /* ECONOMY */
+  .eco-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
+  .eco-row:last-child { border-bottom: none; }
+  .eco-label { color: var(--muted); }
+  .eco-val { font-family: var(--mono); font-weight: 700; font-size: 12px; }
+
+  /* TECH */
+  .priority-list { list-style: none; }
+  .priority-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .priority-list li:last-child { border-bottom: none; }
+  .p-badge {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .p-must { background: #fff1ee; color: var(--accent); }
+  .p-should { background: #fffbea; color: #92680a; }
+  .p-could { background: var(--bg); color: var(--muted); }
+
+  /* SPRINT */
+  .sprint-board { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .sprint-col-head {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--border);
+  }
+  .sprint-col-head.todo { border-color: var(--muted); }
+  .sprint-col-head.progress { border-color: var(--accent2); }
+  .sprint-col-head.done { border-color: #1a7a40; }
+  .task-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .task-member {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .task-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .tb-prog { background: #fff1ee; color: var(--accent); }
+  .tb-art { background: #edf4ff; color: #1a4a8a; }
+  .tb-qa { background: #edfff4; color: #1a7a40; }
+  .tb-audio { background: #f5eeff; color: #5a1a8a; }
+  .tb-design { background: #fffbea; color: #92680a; }
+
+  /* COLOR PALETTE */
+  .palette { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 0.5px solid var(--border);
+    position: relative;
+  }
+  .swatch::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .palette-wrap { padding-bottom: 24px; }
+</style>
+</head>
+<body>
+
+<div class="wiki-wrap">
+  <div class="wiki-header">
+    <div class="game-title">HOLLOW SPRINT</div>
+    <div class="game-tag">Game Design Document · v1.0 · Living Wiki</div>
+    <div class="version-badge"><span class="dot"></span> Midterm Prototype — Studio Production Plan</div>
+  </div>
+
+  <div class="wiki-nav">
+    <button class="nav-btn active" onclick="showSection('pitch', this)">01 Pitch & Market</button>
+    <button class="nav-btn" onclick="showSection('design', this)">02 Core Design</button>
+    <button class="nav-btn" onclick="showSection('systems', this)">03 Systems & Economy</button>
+    <button class="nav-btn" onclick="showSection('tech', this)">04 Tech & Art</button>
+    <button class="nav-btn" onclick="showSection('sprint', this)">05 Sprint Plan</button>
+  </div>
+
+  <div class="section active" id="s-pitch">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <span class="sec-title">PITCH & MARKET ANALYSIS</span>
+    </div>
+
+    <div class="elevator-pitch">
+      <div class="label">Elevator Pitch</div>
+      <div class="hook">"A minimalist 2D platformer where you play as a shadow that must outrun the rising light — die once and you restart the world, keeping only the scars."</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Unique Selling Proposition</div>
+        <div class="card-body">Permadeath with "scar memory" — environmental damage from your runs persists. Cracked floors stay cracked. Enemies remember your last approach. Death teaches the world, not just the player.</div>
+        <div class="tag-list">
+          <span class="tag red">Permadeath+</span>
+          <span class="tag yellow">Scar Memory</span>
+          <span class="tag green">Minimalist</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Target Audience & Personas</div>
+        <div class="card-body">
+          <strong>Primary:</strong> "The Masochist" — 18–28, played Hollow Knight, Celeste. Wants challenge + story payoff.<br><br>
+          <strong>Secondary:</strong> "The Aesthete" — 20–35, buys games for art direction. Clean visuals sell the download.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Competitive Analysis</div>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Game</th><th>Platform</th><th>What We Do Better</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="comp-name">Hollow Knight</div><div style="font-size:11px;color:var(--muted)">Team Cherry, 2017</div></td>
+            <td>PC, Console</td>
+            <td>Simpler scope, faster pace, no backtracking. Our scar system adds roguelite replayability their metroidvania lacks.<div class="diff-badge">+ Scar Memory</div></td>
+          </tr>
+          <tr>
+            <td><div class="comp-name">Celeste</div><div style="font-size:11px;color:var(--muted)">Maddy Thorson, 2018</div></td>
+            <td>PC, Console</td>
+            <td>We lean into failure as world-building. Celeste removes death stigma; we weaponize it as narrative engine.<div class="diff-badge">+ Persistent World</div></td>
+          </tr>
+          <tr>
+            <td><div class="comp-name">Dead Cells</div><div style="font-size:11px;color:var(--muted)">Motion Twin, 2018</div></td>
+            <td>PC, Console</td>
+            <td>We sacrifice build diversity for art clarity and emotional resonance. No item bloat, pure movement mastery.<div class="diff-badge">+ Focused Design</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="s-design">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <span class="sec-title">CORE DESIGN & THE 3 Cs</span>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">Character</div>
+        <div class="card-body" style="font-size:13px">Shadow silhouette, no face. Grows more detailed (cracks, tears) as runs accumulate. Communicates state via deformation, not UI. No health bar — posture tells HP.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Camera</div>
+        <div class="card-body" style="font-size:13px">Fixed 2D side-scroll. Camera leads player by 80px, lags by 40px. Orthographic, no zoom. Panic events trigger a subtle 2px shake at 12Hz. No parallax — single flat plane.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Controls</div>
+        <div class="card-body" style="font-size:13px">Move: WASD / D-pad. Jump: Space / A. Dash: Shift / RB (4s cooldown). Crouch: Ctrl / LB. Interact: E / X. No attack button — avoidance is the only verb.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Core Game Loop</div>
+      <div class="loop-wrap">
+        <div class="loop-row">
+          <div class="loop-box accent">Spawn<div class="loop-sub">scarred world</div></div>
+          <div class="loop-arrow">→</div>
+          <div class="loop-box">Navigate<div class="loop-sub">platform + avoid</div></div>
+          <div class="loop-arrow">→</div>
+          <div class="loop-box yellow">Checkpoint<div class="loop-sub">optional risk</div></div>
+          <div class="loop-arrow">→</div>
+          <div class="loop-box">Reach Portal<div class="loop-sub">next zone</div></div>
+        </div>
+        <div class="loop-cycle">
+            ↻ On death: world retains scars from this run · player restarts zone 1<br>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Mechanics & Edge Cases</div>
+      <div class="mechanic-row">
+        <div class="mech-icon">🌘</div>
+        <div>
+          <div class="mech-name">Light Avoidance</div>
+          <div class="mech-desc">Player dissolves in direct light (1.2s grace window). Shadows and overhangs are safe zones. Light rays are dynamic — move after 30s to prevent camping.</div>
+          <div class="edge-case">⚠ Edge: player trapped between two converging rays → guaranteed death. Spawn rays with minimum 3-tile exit gap.</div>
+        </div>
+      </div>
+      <div class="mechanic-row">
+        <div class="mech-icon">💨</div>
+        <div>
+          <div class="mech-name">Dash</div>
+          <div class="mech-desc">4s cooldown. Invincible first 0.15s. Cannot dash into solid tiles — stops at wall edge. Air-dash resets on wall-touch.</div>
+          <div class="edge-case">⚠ Edge: corner-clipping exploit. Add 2px inward nudge on dash trajectory resolve.</div>
+        </div>
+      </div>
+      <div class="mechanic-row">
+        <div class="mech-icon">🩹</div>
+        <div>
+          <div class="mech-name">Scar System</div>
+          <div class="mech-desc">Each death flags tiles with visual wear (cracks, darkening). After 5 deaths on same tile: tile becomes permanently unstable (breaks underfoot). Max 30 scar markers per zone.</div>
+          <div class="edge-case">⚠ Edge: player intentionally scars all tiles to grief run. Cap scar density per 4×4 grid region.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="s-systems">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <span class="sec-title">SYSTEMS & ECONOMY</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Progression Tree (Zone Unlock)</div>
+      <div class="prog-tree">
+        <div class="prog-level">
+          <div class="level-num">1</div>
+          <div class="level-bar-wrap">
+            <div class="level-name">The Hollow — Tutorial Zone</div>
+            <div class="level-bar-bg"><div class="level-bar" style="width:100%"></div></div>
+          </div>
+          <div class="level-xp">0 XP</div>
+        </div>
+        <div class="prog-level">
+          <div class="level-num">2</div>
+          <div class="level-bar-wrap">
+            <div class="level-name">The Fracture — Moving light rays</div>
+            <div class="level-bar-bg"><div class="level-bar" style="width:60%"></div></div>
+          </div>
+          <div class="level-xp">500 XP</div>
+        </div>
+        <div class="prog-level">
+          <div class="level-num">3</div>
+          <div class="level-bar-wrap">
+            <div class="level-name">The Mirror — Reflected shadows</div>
+            <div class="level-bar-bg"><div class="level-bar" style="width:35%"></div></div>
+          </div>
+          <div class="level-xp">1 400 XP</div>
+        </div>
+        <div class="prog-level">
+          <div class="level-num boss">4</div>
+          <div class="level-bar-wrap">
+            <div class="level-name">The Dawn — Final boss (the sunrise)</div>
+            <div class="level-bar-bg"><div class="level-bar" style="width:15%"></div></div>
+          </div>
+          <div class="level-xp">3 000 XP</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Game Economy</div>
+        <div class="eco-row"><span class="eco-label">XP per clean run</span><span class="eco-val">+200 XP</span></div>
+        <div class="eco-row"><span class="eco-label">XP per scar avoided</span><span class="eco-val">+15 XP</span></div>
+        <div class="eco-row"><span class="eco-label">Death penalty</span><span class="eco-val">−50 XP</span></div>
+        <div class="eco-row"><span class="eco-label">Checkpoint use cost</span><span class="eco-val">−30 XP</span></div>
+        <div style="text-align:center; margin-top:16px;">
+            </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Monetization & Scope</div>
+        <div class="card-body" style="font-size:13px;line-height:1.8">
+          <strong>Model:</strong> One-time purchase, no DLC.<br>
+          <strong>Price:</strong> $7.99 (Steam/itch.io)<br>
+          <strong>Team size:</strong> 4 (1 programmer, 1 artist, 1 designer, 1 QA)<br>
+          <strong>Timeline:</strong> 4 months<br>
+          <strong>Engine cost:</strong> $0 (Unity Personal)<br>
+          <strong>Break-even:</strong> ~600 units
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="s-tech">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <span class="sec-title">TECHNICAL ARCHITECTURE & ART PIPELINE</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Engine & Tools</div>
+        <div class="card-body" style="font-size:13px;line-height:1.8">
+          <strong>Engine:</strong> Unity 2022 LTS<br>
+          <strong>Reason:</strong> Industry standard, robust 2D Universal Render Pipeline (URP) for dynamic lighting, and highly scalable C# architecture.<br>
+          <strong>Packages:</strong> Cinemachine (camera tracking/shake), NodeCanvas (state machines for AI), 2D Light (URP).<br>
+          <strong>Version control:</strong> Git + GitHub.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Technical Constraints</div>
+        <div class="card-body" style="font-size:13px;line-height:1.8">
+          <strong>Target FPS:</strong> 60fps locked (PC), 30fps min (mobile future)<br>
+          <strong>Resolution:</strong> 1280×720 base, pixel-perfect scaling<br>
+          <strong>Memory budget:</strong> &lt;200 MB RAM<br>
+          <strong>Max draw calls:</strong> 80/frame<br>
+          <strong>Platform:</strong> PC (Win/Mac) primary<br>
+          <strong>Scar markers cap:</strong> 30 per zone (perf guard)
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Art & Audio Guidelines — Color Palette</div>
+      <div class="palette-wrap">
+        <div class="palette">
+          <div class="swatch" style="background:#0A0A0F" data-name="Void"></div>
+          <div class="swatch" style="background:#1A1A2E" data-name="Deep"></div>
+          <div class="swatch" style="background:#2D2D44" data-name="Shadow"></div>
+          <div class="swatch" style="background:#F5E642" data-name="Light"></div>
+          <div class="swatch" style="background:#FF4D2E" data-name="Danger"></div>
+          <div class="swatch" style="background:#C8C8D8" data-name="Stone"></div>
+          <div class="swatch" style="background:#4A90B8" data-name="Portal"></div>
+        </div>
+      </div>
+      <div class="card-body" style="font-size:13px;margin-top:8px">
+        <strong>Mood:</strong> Liminal, quiet dread. Think ink-wash meets neon crack.<br>
+        <strong>Audio style:</strong> Ambient drone base + piano stabs on danger. No music during boss — only heartbeat SFX.<br>
+        <strong>Art style:</strong> 32×32 pixel sprites. 1-bit primary shapes + selective yellow highlight. No gradients on sprites.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Asset Priority List</div>
+      <ul class="priority-list">
+        <li><span class="p-badge p-must">Must</span>Player shadow sprite (8 frame walk, 4 frame dash, death anim)</li>
+        <li><span class="p-badge p-must">Must</span>Light ray configuration (URP Freeform Light 2D)</li>
+        <li><span class="p-badge p-must">Must</span>Zone 1 tileset (30 tiles: platform, wall, crumble variants)</li>
+        <li><span class="p-badge p-must">Must</span>Scar overlay sprites (5 wear stages per tile)</li>
+        <li><span class="p-badge p-should">Should</span>Zone 2–3 tilesets + parallax background layers</li>
+        <li><span class="p-badge p-should">Should</span>UI: XP counter, death counter HUD (Unity UI Toolkit)</li>
+        <li><span class="p-badge p-should">Should</span>Ambient audio tracks (4 zone variants)</li>
+        <li><span class="p-badge p-could">Could</span>Animated background entities (non-interactive)</li>
+        <li><span class="p-badge p-could">Could</span>Gamepad rumble on scar-tile break (Input System)</li>
+        <li><span class="p-badge p-could">Could</span>Steam achievements (10 planned)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section" id="s-sprint">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <span class="sec-title">AGILE PRODUCTION PLAN — SPRINT 1</span>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Sprint 1 · Weeks 1–2 · Goal: Playable Core Prototype</div>
+      <div class="card-body" style="font-size:13px">
+        <strong>Approach:</strong> Cross-functional studio team execution.<br><br>
+        <strong>Milestone:</strong> Core gameplay loop is functional: player movement, light interaction, death & respawn, and basic scar system blocking.
+        <a href="https://yusufdurak.atlassian.net/jira/core/projects/DP/board?filter=&groupBy=status&atlOrigin=eyJpIjoiZWRkN2JmMTQ4YTdiNDU2NGE4ZDY5NWMyZDZiMjU2M2EiLCJwIjoiaiJ9" target="_blank" class="doc-link">🔗 View Live Jira Board</a>
+      </div>
+    </div>
+
+    <div class="sprint-board">
+      <div>
+        <div class="sprint-col-head todo">To Do</div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-prog">Prog</span>
+          <div>Implement tile-based collision system (CompositeCollider2D)</div>
+          <div class="task-member">👤 Kerem (Programmer)</div>
+        </div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-art">Art</span>
+          <div>Deliver player walk + dash sprite sheet</div>
+          <div class="task-member">👤 Selin (Artist)</div>
+        </div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-audio">Audio</span>
+          <div>Compose Zone 1 ambient loop (90s)</div>
+          <div class="task-member">👤 Mert (Audio)</div>
+        </div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-design">Design</span>
+          <div>Block out Zone 1 level in Unity Tilemap</div>
+          <div class="task-member">👤 Aylin (Designer)</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sprint-col-head progress">In Progress</div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-prog">Prog</span>
+          <div>Basic jump physics + coyote time (0.1s)</div>
+          <div class="task-member">👤 Kerem (Programmer)</div>
+        </div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-prog">Prog</span>
+          <div>URP 2D lighting + Global Light setup</div>
+          <div class="task-member">👤 Kerem (Programmer)</div>
+        </div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-art">Art</span>
+          <div>Zone 1 tileset (30 tile variants) — 60% done</div>
+          <div class="task-member">👤 Selin (Artist)</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sprint-col-head done">Done ✓</div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-design">Design</span>
+          <div>GDD finalized and shared with team</div>
+          <div class="task-member">👤 Aylin (Designer)</div>
+        </div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-prog">Prog</span>
+          <div>Unity project scaffolding (.gitignore config) + Git repo init</div>
+          <div class="task-member">👤 Kerem (Programmer)</div>
+        </div>
+        
+        <div class="task-card">
+          <span class="task-badge tb-qa">QA</span>
+          <div>Test matrix template created for Sprint 1</div>
+          <div class="task-member">👤 Deniz (QA)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
